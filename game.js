@@ -49,6 +49,23 @@ class Character {
     if (this.x < this.radius || this.x > canvas.width - this.radius) this.dx *= -1;
     if (this.y < this.radius || this.y > canvas.height - this.radius) this.dy *= -1;
   }
+
+  // 他のキャラクターとの衝突を検出
+  checkCollision(other) {
+    const dx = this.x - other.x;
+    const dy = this.y - other.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    // 描画された境界の30%を基準にする（radiusの70%を使用）
+    const collisionRadius = this.radius * 0.7;
+    const otherCollisionRadius = other.radius * 0.7;
+    return distance < (collisionRadius + otherCollisionRadius);
+  }
+
+  // 衝突時の方向転換
+  reverseDirection() {
+    this.dx *= -1;
+    this.dy *= -1;
+  }
 }
 
 // ゲーム開始
@@ -81,6 +98,17 @@ function gameLoop() {
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+  // キャラクター同士の衝突チェック
+  for (let i = 0; i < characters.length; i++) {
+    for (let j = i + 1; j < characters.length; j++) {
+      if (characters[i].checkCollision(characters[j])) {
+        characters[i].reverseDirection();
+        characters[j].reverseDirection();
+      }
+    }
+  }
+
+  // キャラクターの移動と描画
   characters.forEach((char) => {
     char.move();
     char.draw();
