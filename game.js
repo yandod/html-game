@@ -26,6 +26,7 @@ class Character {
     this.color = isSpecial ? 'red' : 'blue';
     this.color = 'gray';
     this.fill_color = 'rgba(0, 0, 255, 0.5)';
+    this.lastCollisionTime = 0; // 最後の衝突時刻
   }
 
   draw() {
@@ -52,13 +53,26 @@ class Character {
 
   // 他のキャラクターとの衝突を検出
   checkCollision(other) {
+    const currentTime = Date.now();
+    // 0.1秒（100ミリ秒）以内の再衝突をチェック
+    if (currentTime - this.lastCollisionTime < 100 || currentTime - other.lastCollisionTime < 100) {
+      return false;
+    }
+
     const dx = this.x - other.x;
     const dy = this.y - other.y;
     const distance = Math.sqrt(dx * dx + dy * dy);
     // 描画された境界の30%を基準にする（radiusの70%を使用）
-    const collisionRadius = this.radius * 0.7;
+    const collisionRadius = this.radius * 0.5;
     const otherCollisionRadius = other.radius * 0.7;
-    return distance < (collisionRadius + otherCollisionRadius);
+    
+    if (distance < (collisionRadius + otherCollisionRadius)) {
+      // 衝突が発生した場合、両方のキャラクターの最後の衝突時刻を更新
+      this.lastCollisionTime = currentTime;
+      other.lastCollisionTime = currentTime;
+      return true;
+    }
+    return false;
   }
 
   // 衝突時の方向転換
