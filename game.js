@@ -19,10 +19,10 @@ class Character {
   constructor(x, y, isSpecial) {
     this.x = x;
     this.y = y;
-    this.radius = 20;
+    this.radius = 8;
     this.isSpecial = isSpecial; // 特異的動作を持つかどうか
-    this.dx = Math.random() * 2 - 1;
-    this.dy = Math.random() * 2 - 1;
+    this.speed = isSpecial ? 2 : 1; // 速度のマグニチュード
+    this.angle = Math.random() * Math.PI * 2; // 進行方向（ラジアン）
     this.color = isSpecial ? 'red' : 'blue';
     this.color = 'gray';
     this.fill_color = 'rgba(0, 0, 255, 0.5)';
@@ -43,19 +43,27 @@ class Character {
   }
 
   move() {
-    this.x += this.dx * (this.isSpecial ? 2 : 1); // 特異キャラは速く動く
-    this.y += this.dy * (this.isSpecial ? 2 : 1);
+    // 角度に基づいてX,Y方向の速度を計算
+    const dx = Math.cos(this.angle) * this.speed;
+    const dy = Math.sin(this.angle) * this.speed;
+    
+    this.x += dx;
+    this.y += dy;
 
     // キャンバスの境界で跳ね返る
-    if (this.x < this.radius || this.x > canvas.width - this.radius) this.dx *= -1;
-    if (this.y < this.radius || this.y > canvas.height - this.radius) this.dy *= -1;
+    if (this.x < this.radius || this.x > canvas.width - this.radius) {
+      this.angle = Math.PI - this.angle; // X軸方向の反射
+    }
+    if (this.y < this.radius || this.y > canvas.height - this.radius) {
+      this.angle = -this.angle; // Y軸方向の反射
+    }
   }
 
   // 他のキャラクターとの衝突を検出
   checkCollision(other) {
     const currentTime = Date.now();
     // 0.1秒（100ミリ秒）以内の再衝突をチェック
-    if (currentTime - this.lastCollisionTime < 100 || currentTime - other.lastCollisionTime < 100) {
+    if (currentTime - this.lastCollisionTime < 100 || currentTime - other.lastCollisionTime < 200) {
       return false;
     }
 
@@ -77,8 +85,11 @@ class Character {
 
   // 衝突時の方向転換
   reverseDirection() {
-    this.dx *= -1;
-    this.dy *= -1;
+    // 進行方向を180度反転
+    this.angle += Math.PI;
+    // 角度を0-2π の範囲に正規化
+    this.angle = this.angle % (Math.PI * 2);
+    if (this.angle < 0) this.angle += Math.PI * 2;
   }
 }
 
@@ -89,7 +100,7 @@ function startGame() {
   characters = [];
 
   // 通常キャラクターを17個生成
-  for (let i = 0; i < 17; i++) {
+  for (let i = 0; i < 150; i++) {
     const x = Math.random() * canvas.width;
     const y = Math.random() * canvas.height;
     characters.push(new Character(x, y, false));
