@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>特異キャラ発見ゲーム</title>
+  <style>
+    canvas {
+      border: 1px solid #000;
+    }
+    #ui {
+      text-align: center;
+      margin: 10px;
+    }
+
+    #main {
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div id="ui">
+    <button id="startBtn">スタート</button>
+    <p>スコア: <span id="score">0</span></p>
+    <p>残り特異キャラ: <span id="specialCount">0</span></p>
+  </div>
+  <div id="main">
+  <canvas id="gameCanvas" width="800" height="600"></canvas>
+  </div>
+  <script src="game.js"></script>
+</body>
+</html>
